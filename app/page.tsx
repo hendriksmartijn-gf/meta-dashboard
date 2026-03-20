@@ -3,8 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import KpiCard from '@/components/KpiCard';
 import CampaignChart from '@/components/CampaignChart';
+import DayOfWeekChart from '@/components/DayOfWeekChart';
+import CorrelationChart from '@/components/CorrelationChart';
 import DateRangePicker, { DatePreset } from '@/components/DateRangePicker';
-import type { DashboardData } from '@/types/meta';
+import type { DashboardData, DailyDataPoint } from '@/types/meta';
 
 function formatNumber(n: number): string {
   return n.toLocaleString('nl-NL');
@@ -155,6 +157,22 @@ export default function DashboardPage() {
             </div>
           ) : null}
         </section>
+
+        {/* Dag-van-de-week analyse */}
+        {!loading && data && data.campaigns.length > 0 && (() => {
+          const allData: DailyDataPoint[] = data.campaigns.flatMap((c) => c.dailyData);
+          return (
+            <section>
+              <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-4">
+                Analyse
+              </h2>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <DayOfWeekChart allData={allData} />
+                <CorrelationChart campaigns={data.campaigns} />
+              </div>
+            </section>
+          );
+        })()}
       </div>
     </main>
   );
