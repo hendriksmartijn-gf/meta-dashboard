@@ -53,7 +53,7 @@ async function fetchAllPages(url: string): Promise<MetaInsight[]> {
 
   while (nextUrl) {
     const res = await fetch(nextUrl, {
-      next: { revalidate: 900 }, // cache 15 minutes
+      next: { revalidate: 300 }, // cache 5 minutes
     });
 
     if (!res.ok) {

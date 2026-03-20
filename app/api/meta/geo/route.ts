@@ -28,7 +28,7 @@ async function fetchAllPages(url: string): Promise<MetaGeoRow[]> {
   let nextUrl: string | undefined = url;
 
   while (nextUrl) {
-    const res = await fetch(nextUrl, { next: { revalidate: 900 } });
+    const res = await fetch(nextUrl, { next: { revalidate: 300 } });
     if (!res.ok) {
       const error = await res.json().catch(() => ({ error: { message: res.statusText } }));
       throw new Error(error?.error?.message ?? `Meta API error ${res.status}`);
