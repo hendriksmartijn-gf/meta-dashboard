@@ -1,8 +1,9 @@
 'use client';
 
-export type DatePreset = 'last_7d' | 'last_14d' | 'last_30d';
+export type DatePreset = 'last_3d' | 'last_7d' | 'last_14d' | 'last_30d';
 
 const PRESETS: { label: string; value: DatePreset }[] = [
+  { label: 'Laatste 3 dagen', value: 'last_3d' },
   { label: 'Laatste 7 dagen', value: 'last_7d' },
   { label: 'Laatste 14 dagen', value: 'last_14d' },
   { label: 'Laatste 30 dagen', value: 'last_30d' },

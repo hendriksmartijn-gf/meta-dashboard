@@ -95,10 +95,21 @@ export async function GET(request: NextRequest) {
   const params = new URLSearchParams({
     fields,
     time_increment: '1',
-    date_preset: datePreset,
     level: 'campaign',
     access_token: accessToken,
   });
+
+  if (datePreset === 'last_3d') {
+    const until = new Date();
+    const since = new Date();
+    since.setDate(until.getDate() - 3);
+    params.set('time_range', JSON.stringify({
+      since: since.toISOString().slice(0, 10),
+      until: until.toISOString().slice(0, 10),
+    }));
+  } else {
+    params.set('date_preset', datePreset);
+  }
 
   const url = `https://graph.facebook.com/v19.0/act_${adAccountId}/insights?${params.toString()}`;
 
