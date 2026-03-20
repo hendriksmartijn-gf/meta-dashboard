@@ -9,7 +9,7 @@ interface KpiCardProps {
 
 export default function KpiCard({ title, value, subtitle }: KpiCardProps) {
   return (
-    <div className="bg-white border border-[#E2DBFF] p-6 flex flex-col gap-2">
+    <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] p-6 flex flex-col gap-2">
       <span className="text-xs font-semibold uppercase tracking-widest text-[#6331F4]">
         {title}
       </span>

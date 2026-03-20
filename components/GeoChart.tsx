@@ -43,7 +43,7 @@ export default function GeoChart({ data }: GeoChartProps) {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;
     return (
-      <div className="bg-white border border-[#E2DBFF] shadow p-3 text-sm">
+      <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] shadow p-3 text-sm">
         <p className="font-semibold text-[#0f0f0f] mb-2">{d.name}</p>
         {METRIC_CONFIG.map((m) => (
           <p key={m.key} className="flex gap-2">
@@ -56,23 +56,21 @@ export default function GeoChart({ data }: GeoChartProps) {
   };
 
   return (
-    <div className="bg-white border border-[#E2DBFF] p-6">
+    <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] p-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h2 className="font-semibold text-[#0f0f0f] text-base">Geografisch overzicht</h2>
           <p className="text-xs text-[#A38DFB] uppercase tracking-widest mt-0.5">Top 10 landen</p>
         </div>
-        <div className="flex border border-[#E2DBFF]">
+        <div className="flex gap-2 flex-wrap">
           {METRIC_CONFIG.map((m, i) => (
             <button
               key={m.key}
               onClick={() => setActiveMetric(m.key)}
-              className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-widest transition-colors ${
-                i < METRIC_CONFIG.length - 1 ? 'border-r border-[#E2DBFF]' : ''
-              } ${
+              className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-colors ${
                 activeMetric === m.key
                   ? 'bg-[#6331F4] text-white'
-                  : 'bg-white text-[#6331F4] hover:bg-[#E2DBFF]'
+                  : 'bg-white text-[#6331F4] border border-[#E2DBFF] hover:bg-[#E2DBFF]'
               }`}
             >
               {m.label}

@@ -40,7 +40,7 @@ export default function DayOfWeekChart({ allData }: DayOfWeekChartProps) {
   const TooltipClicks = ({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) => {
     if (!active || !payload?.length) return null;
     return (
-      <div className="bg-white border border-[#E2DBFF] shadow p-3 text-sm">
+      <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] shadow p-3 text-sm">
         <p className="font-semibold mb-1">{label}</p>
         <p className="text-[#6331F4] font-semibold">{payload[0].value.toLocaleString('nl-NL')} clicks</p>
       </div>
@@ -50,7 +50,7 @@ export default function DayOfWeekChart({ allData }: DayOfWeekChartProps) {
   const TooltipThru = ({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) => {
     if (!active || !payload?.length) return null;
     return (
-      <div className="bg-white border border-[#E2DBFF] shadow p-3 text-sm">
+      <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] shadow p-3 text-sm">
         <p className="font-semibold mb-1">{label}</p>
         <p className="text-[#A38DFB] font-semibold">{payload[0].value}% ThruPlay</p>
       </div>
@@ -58,7 +58,7 @@ export default function DayOfWeekChart({ allData }: DayOfWeekChartProps) {
   };
 
   return (
-    <div className="bg-white border border-[#E2DBFF] p-6">
+    <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] p-6">
       <h2 className="font-semibold text-[#0f0f0f] text-base mb-1">Prestaties per weekdag</h2>
       <p className="text-xs text-[#A38DFB] uppercase tracking-widest mb-6">Gemiddelde over de geselecteerde periode</p>
 

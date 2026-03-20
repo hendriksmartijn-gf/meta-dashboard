@@ -24,7 +24,7 @@ function formatEuro(n: number): string {
 
 function SkeletonCard() {
   return (
-    <div className="bg-white border border-[#E2DBFF] p-6 animate-pulse">
+    <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] p-6 animate-pulse">
       <div className="h-3 bg-[#E2DBFF] w-1/2 mb-4" />
       <div className="h-8 bg-[#E2DBFF] w-2/3 mb-2" />
       <div className="h-3 bg-[#E2DBFF] w-1/3" />
@@ -34,7 +34,7 @@ function SkeletonCard() {
 
 function SkeletonChart() {
   return (
-    <div className="bg-white border border-[#E2DBFF] p-6 animate-pulse">
+    <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] p-6 animate-pulse">
       <div className="h-5 bg-[#E2DBFF] w-1/3 mb-6" />
       <div className="h-[280px] bg-[#F5F3FF]" />
     </div>
@@ -172,7 +172,7 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : !error ? (
-            <div className="bg-white border border-[#E2DBFF] p-12 text-center">
+            <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] p-12 text-center">
               <p className="text-slate-400">Geen campagnedata gevonden</p>
             </div>
           ) : null}

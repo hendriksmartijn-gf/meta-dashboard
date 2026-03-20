@@ -73,7 +73,7 @@ export default function CampaignChart({ campaignName, data }: CampaignChartProps
   }) => {
     if (!active || !payload?.length) return null;
     return (
-      <div className="bg-white border border-[#E2DBFF] shadow-lg p-3 text-sm">
+      <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] shadow-lg p-3 text-sm">
         <p className="font-semibold text-[#0f0f0f] mb-2">{label}</p>
         {payload.map((entry) => {
           const metric = METRICS.find((m) => m.label === entry.name);
@@ -92,7 +92,7 @@ export default function CampaignChart({ campaignName, data }: CampaignChartProps
   };
 
   return (
-    <div className="bg-white border border-[#E2DBFF] p-6">
+    <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] p-6">
       <h2 className="font-semibold text-[#22222D] text-base leading-tight mb-3 w-full">{campaignName}</h2>
       <div className="flex flex-wrap gap-1.5 mb-6">
         {METRICS.map((metric) => (

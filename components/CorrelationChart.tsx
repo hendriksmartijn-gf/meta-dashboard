@@ -65,7 +65,7 @@ export default function CorrelationChart({ campaigns }: CorrelationChartProps) {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;
     return (
-      <div className="bg-white border border-[#E2DBFF] shadow p-3 text-sm">
+      <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] shadow p-3 text-sm">
         <p className="font-semibold text-[#0f0f0f] mb-1">{d.date}</p>
         <p className="text-[#A38DFB] text-xs mb-2 truncate max-w-[180px]">{d.campaign}</p>
         <p><span className="text-slate-500">ThruPlay:</span> <span className="font-semibold">{d.x}%</span></p>
@@ -75,7 +75,7 @@ export default function CorrelationChart({ campaigns }: CorrelationChartProps) {
   };
 
   return (
-    <div className="bg-white border border-[#E2DBFF] p-6">
+    <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] p-6">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-6">
         <div>
           <h2 className="font-semibold text-[#0f0f0f] text-base">Uitkijkers vs Clicks</h2>
