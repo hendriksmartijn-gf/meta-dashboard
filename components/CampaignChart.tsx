@@ -20,31 +20,18 @@ interface MetricConfig {
   formatter: (v: number) => string;
 }
 
+const euro = (v: number) =>
+  v.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 });
+
 const METRICS: MetricConfig[] = [
-  {
-    key: 'impressions',
-    label: 'Weergaven',
-    color: '#3b82f6',
-    formatter: (v) => v.toLocaleString('nl-NL'),
-  },
-  {
-    key: 'clicks',
-    label: 'Clicks',
-    color: '#10b981',
-    formatter: (v) => v.toLocaleString('nl-NL'),
-  },
-  {
-    key: 'reach',
-    label: 'Bereik',
-    color: '#f59e0b',
-    formatter: (v) => v.toLocaleString('nl-NL'),
-  },
-  {
-    key: 'thruplayRate',
-    label: 'ThruPlay %',
-    color: '#8b5cf6',
-    formatter: (v) => `${v.toFixed(1)}%`,
-  },
+  { key: 'impressions', label: 'Weergaven', color: '#3b82f6', formatter: (v) => v.toLocaleString('nl-NL') },
+  { key: 'clicks', label: 'Clicks', color: '#10b981', formatter: (v) => v.toLocaleString('nl-NL') },
+  { key: 'reach', label: 'Bereik', color: '#f59e0b', formatter: (v) => v.toLocaleString('nl-NL') },
+  { key: 'thruplayRate', label: 'ThruPlay %', color: '#8b5cf6', formatter: (v) => `${v.toFixed(1)}%` },
+  { key: 'spend', label: 'Spend', color: '#ef4444', formatter: euro },
+  { key: 'cpm', label: 'CPM', color: '#f97316', formatter: euro },
+  { key: 'cpc', label: 'CPC', color: '#ec4899', formatter: euro },
+  { key: 'roas', label: 'ROAS', color: '#14b8a6', formatter: (v) => `${v.toFixed(2)}x` },
 ];
 
 interface CampaignChartProps {
@@ -59,7 +46,7 @@ function formatDate(dateStr: string): string {
 
 export default function CampaignChart({ campaignName, data }: CampaignChartProps) {
   const [activeMetrics, setActiveMetrics] = useState<Set<string>>(
-    new Set(METRICS.map((m) => m.key as string))
+    new Set(['impressions', 'clicks', 'spend'])
   );
 
   const toggleMetric = (key: string) => {

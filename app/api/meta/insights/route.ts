@@ -3,9 +3,12 @@ import type { MetaApiResponse, MetaInsight, CampaignData, DailyDataPoint, Dashbo
 
 export const runtime = 'edge';
 
-function extractThruplayValue(actions?: { action_type: string; value: string }[]): number {
+function extractActionValue(
+  actions?: { action_type: string; value: string }[],
+  type = 'video_view'
+): number {
   if (!actions) return 0;
-  const action = actions.find((a) => a.action_type === 'video_view');
+  const action = actions.find((a) => a.action_type === type);
   return action ? parseFloat(action.value) : 0;
 }
 
@@ -24,8 +27,9 @@ function groupByCampaign(insights: MetaInsight[]): CampaignData[] {
     }
 
     const impressions = parseInt(insight.impressions, 10) || 0;
-    const thruplays = extractThruplayValue(insight.video_thruplay_watched_actions);
+    const thruplays = extractActionValue(insight.video_thruplay_watched_actions, 'video_view');
     const thruplayRate = impressions > 0 ? (thruplays / impressions) * 100 : 0;
+    const roas = extractActionValue(insight.purchase_roas, 'omni_purchase');
 
     const dataPoint: DailyDataPoint = {
       date: insight.date_start,
@@ -34,6 +38,10 @@ function groupByCampaign(insights: MetaInsight[]): CampaignData[] {
       reach: parseInt(insight.reach, 10) || 0,
       thruplays,
       thruplayRate,
+      spend: parseFloat(insight.spend) || 0,
+      cpm: parseFloat(insight.cpm) || 0,
+      cpc: parseFloat(insight.cpc) || 0,
+      roas,
     };
 
     map.get(id)!.dailyData.push(dataPoint);
@@ -89,6 +97,10 @@ export async function GET(request: NextRequest) {
     'impressions',
     'clicks',
     'reach',
+    'spend',
+    'cpm',
+    'cpc',
+    'purchase_roas',
     'video_thruplay_watched_actions',
   ].join(',');
 
@@ -124,16 +136,34 @@ export async function GET(request: NextRequest) {
     let reachDays = 0;
     let totalThruplayRate = 0;
     let thruplayDays = 0;
+    let totalSpend = 0;
+    let totalCpm = 0;
+    let cpmDays = 0;
+    let totalCpc = 0;
+    let cpcDays = 0;
+    let totalRoas = 0;
+    let roasDays = 0;
 
     for (const campaign of campaigns) {
       for (const day of campaign.dailyData) {
         totalImpressions += day.impressions;
         totalClicks += day.clicks;
         totalReach += day.reach;
+        totalSpend += day.spend;
         reachDays++;
         if (day.impressions > 0) {
           totalThruplayRate += day.thruplayRate;
           thruplayDays++;
+          totalCpm += day.cpm;
+          cpmDays++;
+        }
+        if (day.clicks > 0) {
+          totalCpc += day.cpc;
+          cpcDays++;
+        }
+        if (day.roas > 0) {
+          totalRoas += day.roas;
+          roasDays++;
         }
       }
     }
@@ -145,6 +175,10 @@ export async function GET(request: NextRequest) {
         totalClicks,
         avgReachPerDay: reachDays > 0 ? Math.round(totalReach / reachDays) : 0,
         avgThruplayRate: thruplayDays > 0 ? totalThruplayRate / thruplayDays : 0,
+        totalSpend,
+        avgCpm: cpmDays > 0 ? totalCpm / cpmDays : 0,
+        avgCpc: cpcDays > 0 ? totalCpc / cpcDays : 0,
+        avgRoas: roasDays > 0 ? totalRoas / roasDays : 0,
       },
     };
 

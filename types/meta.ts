@@ -11,6 +11,10 @@ export interface MetaInsight {
   impressions: string;
   clicks: string;
   reach: string;
+  spend: string;
+  cpm: string;
+  cpc: string;
+  purchase_roas?: MetaVideoAction[];
   video_avg_time_watched_actions?: MetaVideoAction[];
   video_thruplay_watched_actions?: MetaVideoAction[];
 }
@@ -29,7 +33,11 @@ export interface DailyDataPoint {
   clicks: number;
   reach: number;
   thruplays: number;
-  thruplayRate: number; // percentage: (thruplays / impressions) * 100
+  thruplayRate: number;
+  spend: number;
+  cpm: number;
+  cpc: number;
+  roas: number;
 }
 
 export interface CampaignData {
@@ -44,7 +52,7 @@ export interface CampaignSummary {
   totalImpressions: number;
   totalClicks: number;
   avgReachPerDay: number;
-  avgThruplayRate: number; // average thruplay rate across days
+  avgThruplayRate: number;
 }
 
 export interface DashboardData {
@@ -54,5 +62,9 @@ export interface DashboardData {
     totalClicks: number;
     avgReachPerDay: number;
     avgThruplayRate: number;
+    totalSpend: number;
+    avgCpm: number;
+    avgCpc: number;
+    avgRoas: number;
   };
 }

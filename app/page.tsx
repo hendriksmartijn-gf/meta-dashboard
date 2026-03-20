@@ -18,6 +18,10 @@ function formatPercent(n: number): string {
   return `${n.toFixed(1)}%`;
 }
 
+function formatEuro(n: number): string {
+  return n.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 });
+}
+
 function SkeletonCard() {
   return (
     <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-6 animate-pulse">
@@ -110,33 +114,20 @@ export default function DashboardPage() {
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {loading ? (
-              <>
-                <SkeletonCard />
-                <SkeletonCard />
-                <SkeletonCard />
-                <SkeletonCard />
-              </>
+              Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
             ) : data ? (
               <>
+                <KpiCard title="Weergaven" value={formatNumber(data.totals.totalImpressions)} subtitle="Totaal impressies" />
+                <KpiCard title="Clicks" value={formatNumber(data.totals.totalClicks)} subtitle="Totaal klikken" />
+                <KpiCard title="Bereik" value={formatNumber(data.totals.avgReachPerDay)} subtitle="Gemiddeld per dag" />
+                <KpiCard title="ThruPlay rate" value={formatPercent(data.totals.avgThruplayRate)} subtitle="Gem. uitkijkpercentage" />
+                <KpiCard title="Spend" value={formatEuro(data.totals.totalSpend)} subtitle="Totaal uitgegeven" />
+                <KpiCard title="CPM" value={formatEuro(data.totals.avgCpm)} subtitle="Kosten per 1.000 weergaven" />
+                <KpiCard title="CPC" value={formatEuro(data.totals.avgCpc)} subtitle="Kosten per klik" />
                 <KpiCard
-                  title="Weergaven"
-                  value={formatNumber(data.totals.totalImpressions)}
-                  subtitle="Totaal impressies"
-                />
-                <KpiCard
-                  title="Clicks"
-                  value={formatNumber(data.totals.totalClicks)}
-                  subtitle="Totaal klikken"
-                />
-                <KpiCard
-                  title="Bereik"
-                  value={formatNumber(data.totals.avgReachPerDay)}
-                  subtitle="Gemiddeld per dag"
-                />
-                <KpiCard
-                  title="ThruPlay rate"
-                  value={formatPercent(data.totals.avgThruplayRate)}
-                  subtitle="Gemiddeld uitkijkpercentage"
+                  title="ROAS"
+                  value={data.totals.avgRoas > 0 ? `${data.totals.avgRoas.toFixed(2)}x` : '—'}
+                  subtitle={data.totals.avgRoas > 0 ? 'Gemiddeld rendement' : 'Geen conversiedata'}
                 />
               </>
             ) : null}
