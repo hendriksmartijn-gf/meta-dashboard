@@ -5,8 +5,10 @@ import KpiCard from '@/components/KpiCard';
 import CampaignChart from '@/components/CampaignChart';
 import DayOfWeekChart from '@/components/DayOfWeekChart';
 import CorrelationChart from '@/components/CorrelationChart';
+import GeoChart from '@/components/GeoChart';
 import DateRangePicker, { DatePreset } from '@/components/DateRangePicker';
 import type { DashboardData, DailyDataPoint } from '@/types/meta';
+import type { GeoDataPoint } from '@/app/api/meta/geo/route';
 
 function formatNumber(n: number): string {
   return n.toLocaleString('nl-NL');
@@ -38,6 +40,7 @@ function SkeletonChart() {
 export default function DashboardPage() {
   const [datePreset, setDatePreset] = useState<DatePreset>('last_30d');
   const [data, setData] = useState<DashboardData | null>(null);
+  const [geoData, setGeoData] = useState<GeoDataPoint[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,13 +48,23 @@ export default function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/meta/insights?date_preset=${datePreset}`);
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({}));
-        throw new Error(json.error ?? `HTTP ${res.status}`);
+      const [insightsRes, geoRes] = await Promise.all([
+        fetch(`/api/meta/insights?date_preset=${datePreset}`),
+        fetch(`/api/meta/geo?date_preset=${datePreset}`),
+      ]);
+
+      if (!insightsRes.ok) {
+        const json = await insightsRes.json().catch(() => ({}));
+        throw new Error(json.error ?? `HTTP ${insightsRes.status}`);
       }
-      const json: DashboardData = await res.json();
+
+      const json: DashboardData = await insightsRes.json();
       setData(json);
+
+      if (geoRes.ok) {
+        const geo: GeoDataPoint[] = await geoRes.json();
+        setGeoData(geo);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Onbekende fout');
     } finally {
@@ -158,7 +171,7 @@ export default function DashboardPage() {
           ) : null}
         </section>
 
-        {/* Dag-van-de-week analyse */}
+        {/* Dag-van-de-week analyse + correlatie */}
         {!loading && data && data.campaigns.length > 0 && (() => {
           const allData: DailyDataPoint[] = data.campaigns.flatMap((c) => c.dailyData);
           return (
@@ -173,6 +186,16 @@ export default function DashboardPage() {
             </section>
           );
         })()}
+
+        {/* Geografisch overzicht */}
+        {!loading && geoData && geoData.length > 0 && (
+          <section>
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-4">
+              Geografie
+            </h2>
+            <GeoChart data={geoData} />
+          </section>
+        )}
       </div>
     </main>
   );
