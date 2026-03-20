@@ -3,10 +3,10 @@
 export type DatePreset = 'last_3d' | 'last_7d' | 'last_14d' | 'last_30d';
 
 const PRESETS: { label: string; value: DatePreset }[] = [
-  { label: 'Laatste 3 dagen', value: 'last_3d' },
-  { label: 'Laatste 7 dagen', value: 'last_7d' },
-  { label: 'Laatste 14 dagen', value: 'last_14d' },
-  { label: 'Laatste 30 dagen', value: 'last_30d' },
+  { label: '3 dagen', value: 'last_3d' },
+  { label: '7 dagen', value: 'last_7d' },
+  { label: '14 dagen', value: 'last_14d' },
+  { label: '30 dagen', value: 'last_30d' },
 ];
 
 interface DateRangePickerProps {
@@ -16,15 +16,17 @@ interface DateRangePickerProps {
 
 export default function DateRangePicker({ value, onChange }: DateRangePickerProps) {
   return (
-    <div className="flex gap-2 flex-wrap">
-      {PRESETS.map((preset) => (
+    <div className="flex gap-0 border border-[#E2DBFF]">
+      {PRESETS.map((preset, i) => (
         <button
           key={preset.value}
           onClick={() => onChange(preset.value)}
-          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+          className={`px-4 py-2 text-xs font-semibold uppercase tracking-widest transition-colors ${
+            i < PRESETS.length - 1 ? 'border-r border-[#E2DBFF]' : ''
+          } ${
             value === preset.value
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-300 hover:text-blue-600'
+              ? 'bg-[#6331F4] text-white'
+              : 'bg-white text-[#6331F4] hover:bg-[#E2DBFF]'
           }`}
         >
           {preset.label}

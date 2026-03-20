@@ -24,19 +24,19 @@ function formatEuro(n: number): string {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-6 animate-pulse">
-      <div className="h-3 bg-slate-200 rounded w-1/2 mb-4" />
-      <div className="h-8 bg-slate-200 rounded w-2/3 mb-2" />
-      <div className="h-3 bg-slate-200 rounded w-1/3" />
+    <div className="bg-white border border-[#E2DBFF] p-6 animate-pulse">
+      <div className="h-3 bg-[#E2DBFF] w-1/2 mb-4" />
+      <div className="h-8 bg-[#E2DBFF] w-2/3 mb-2" />
+      <div className="h-3 bg-[#E2DBFF] w-1/3" />
     </div>
   );
 }
 
 function SkeletonChart() {
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 animate-pulse">
-      <div className="h-5 bg-slate-200 rounded w-1/3 mb-6" />
-      <div className="h-[280px] bg-slate-100 rounded-xl" />
+    <div className="bg-white border border-[#E2DBFF] p-6 animate-pulse">
+      <div className="h-5 bg-[#E2DBFF] w-1/3 mb-6" />
+      <div className="h-[280px] bg-[#F5F3FF]" />
     </div>
   );
 }
@@ -83,36 +83,52 @@ export default function DashboardPage() {
   }, [fetchData]);
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-100 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-bold text-slate-900">Meta Ads Dashboard</h1>
-            <p className="text-sm text-slate-500">Dagelijkse campagne inzichten</p>
-          </div>
-          <DateRangePicker value={datePreset} onChange={setDatePreset} />
+    <main className="min-h-screen bg-[#F5F3FF]">
+      {/* Top bar */}
+      <header className="bg-white border-b-2 border-[#6331F4]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
+          {/* Logo */}
+          <img
+            src="https://cdn.prod.website-files.com/66420f92b8baaeb64149cdba/6642295254ef6ed97ea01273_LogoSVG.svg"
+            alt="Goldfizh"
+            className="h-7 w-auto"
+          />
+          {/* Client name */}
+          <span className="text-sm font-semibold tracking-widest uppercase text-[#6331F4]">
+            Het Allermooiste Feestje
+          </span>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Sub-bar: date picker */}
+      <div className="bg-white border-b border-[#E2DBFF]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-3 flex items-center gap-4">
+          <span className="text-xs font-semibold uppercase tracking-widest text-[#A38DFB]">Periode</span>
+          <DateRangePicker value={datePreset} onChange={setDatePreset} />
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 space-y-10">
+        {/* Error */}
         {error && (
-          <div className="rounded-2xl bg-red-50 border border-red-200 p-6 text-center">
-            <p className="text-red-700 font-semibold text-lg mb-1">Er is iets misgegaan</p>
-            <p className="text-red-500 text-sm">{error}</p>
+          <div className="bg-white border-l-4 border-[#6331F4] p-6">
+            <p className="font-semibold text-[#6331F4] text-lg mb-1">Er is iets misgegaan</p>
+            <p className="text-sm text-slate-500">{error}</p>
             <button
               onClick={fetchData}
-              className="mt-4 px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors"
+              className="mt-4 px-5 py-2 bg-[#6331F4] text-white text-sm font-semibold uppercase tracking-widest hover:bg-[#4f25c4] transition-colors"
             >
-              Opnieuw proberen
+              Opnieuw
             </button>
           </div>
         )}
 
+        {/* KPI cards */}
         <section>
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-4">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-[#A38DFB] mb-4">
             Totaaloverzicht
           </h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#E2DBFF]">
             {loading ? (
               Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
             ) : data ? (
@@ -121,31 +137,32 @@ export default function DashboardPage() {
                 <KpiCard title="Clicks" value={formatNumber(data.totals.totalClicks)} subtitle="Totaal klikken" />
                 <KpiCard title="Bereik" value={formatNumber(data.totals.avgReachPerDay)} subtitle="Gemiddeld per dag" />
                 <KpiCard title="ThruPlay rate" value={formatPercent(data.totals.avgThruplayRate)} subtitle="Gem. uitkijkpercentage" />
-                <KpiCard title="Spend" value={formatEuro(data.totals.totalSpend)} subtitle="Totaal uitgegeven" />
-                <KpiCard title="CPM" value={formatEuro(data.totals.avgCpm)} subtitle="Kosten per 1.000 weergaven" />
-                <KpiCard title="CPC" value={formatEuro(data.totals.avgCpc)} subtitle="Kosten per klik" />
+                <KpiCard title="Spend" value={formatEuro(data.totals.totalSpend)} subtitle="Totaal uitgegeven" accent />
+                <KpiCard title="CPM" value={formatEuro(data.totals.avgCpm)} subtitle="Kosten per 1.000 weergaven" accent />
+                <KpiCard title="CPC" value={formatEuro(data.totals.avgCpc)} subtitle="Kosten per klik" accent />
                 <KpiCard
                   title="ROAS"
                   value={data.totals.avgRoas > 0 ? `${data.totals.avgRoas.toFixed(2)}x` : '—'}
                   subtitle={data.totals.avgRoas > 0 ? 'Gemiddeld rendement' : 'Geen conversiedata'}
+                  accent
                 />
               </>
             ) : null}
           </div>
         </section>
 
+        {/* Campaign charts */}
         <section>
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-4">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-[#A38DFB] mb-4">
             Campagnes per dag
           </h2>
-
           {loading ? (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
               <SkeletonChart />
               <SkeletonChart />
             </div>
           ) : data && data.campaigns.length > 0 ? (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
               {data.campaigns.map((campaign) => (
                 <CampaignChart
                   key={campaign.campaignId}
@@ -155,24 +172,21 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : !error ? (
-            <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-12 text-center">
-              <p className="text-slate-400 text-lg">Geen campagnedata gevonden</p>
-              <p className="text-slate-300 text-sm mt-1">
-                Controleer je Meta advertentieaccount of selecteer een andere periode.
-              </p>
+            <div className="bg-white border border-[#E2DBFF] p-12 text-center">
+              <p className="text-slate-400">Geen campagnedata gevonden</p>
             </div>
           ) : null}
         </section>
 
-        {/* Dag-van-de-week analyse + correlatie */}
+        {/* Analyse */}
         {!loading && data && data.campaigns.length > 0 && (() => {
           const allData: DailyDataPoint[] = data.campaigns.flatMap((c) => c.dailyData);
           return (
             <section>
-              <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-4">
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-[#A38DFB] mb-4">
                 Analyse
               </h2>
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 <DayOfWeekChart allData={allData} />
                 <CorrelationChart campaigns={data.campaigns} />
               </div>
@@ -180,10 +194,10 @@ export default function DashboardPage() {
           );
         })()}
 
-        {/* Geografisch overzicht */}
+        {/* Geografie */}
         {!loading && geoData && geoData.length > 0 && (
           <section>
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-4">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-[#A38DFB] mb-4">
               Geografie
             </h2>
             <GeoChart data={geoData} />

@@ -1,28 +1,15 @@
 'use client';
 
-import {
-  ScatterChart,
-  Scatter,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-} from 'recharts';
+import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { DailyDataPoint, CampaignData } from '@/types/meta';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899'];
+const COLORS = ['#6331F4', '#A38DFB', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
 
 interface ScatterPoint {
-  x: number; // thruplayRate
-  y: number; // clicks
+  x: number;
+  y: number;
   date: string;
   campaign: string;
-}
-
-interface CorrelationChartProps {
-  campaigns: CampaignData[];
 }
 
 function calcAverage(arr: number[]): number {
@@ -52,49 +39,15 @@ function correlationLabel(r: number): { text: string; color: string } {
   return { text: 'Geen duidelijke correlatie', color: 'text-slate-400' };
 }
 
-export default function CorrelationChart({ campaigns }: CorrelationChartProps) {
-  // Flatten all data points with campaign label
-  const allPoints: ScatterPoint[] = campaigns.flatMap((c) =>
-    c.dailyData
-      .filter((d) => d.impressions > 0)
-      .map((d) => ({
-        x: parseFloat(d.thruplayRate.toFixed(2)),
-        y: d.clicks,
-        date: d.date,
-        campaign: c.campaignName,
-      }))
-  );
+interface CorrelationChartProps {
+  campaigns: CampaignData[];
+}
 
+export default function CorrelationChart({ campaigns }: CorrelationChartProps) {
   const allDailyData = campaigns.flatMap((c) => c.dailyData);
   const r = calcCorrelation(allDailyData);
   const { text: corrText, color: corrColor } = correlationLabel(r);
 
-  const CustomTooltip = ({
-    active,
-    payload,
-  }: {
-    active?: boolean;
-    payload?: { payload: ScatterPoint }[];
-  }) => {
-    if (!active || !payload?.length) return null;
-    const d = payload[0].payload;
-    return (
-      <div className="bg-white border border-slate-200 rounded-xl shadow-lg p-3 text-sm">
-        <p className="font-semibold text-slate-700 mb-1">{d.date}</p>
-        <p className="text-slate-400 text-xs mb-2 truncate max-w-[180px]">{d.campaign}</p>
-        <div className="flex items-center gap-2">
-          <span className="text-slate-500">ThruPlay:</span>
-          <span className="font-medium">{d.x}%</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-slate-500">Clicks:</span>
-          <span className="font-medium">{d.y.toLocaleString('nl-NL')}</span>
-        </div>
-      </div>
-    );
-  };
-
-  // Group points per campaign for separate scatter series
   const seriesPerCampaign = campaigns.map((c, i) => ({
     name: c.campaignName,
     color: COLORS[i % COLORS.length],
@@ -108,31 +61,44 @@ export default function CorrelationChart({ campaigns }: CorrelationChartProps) {
       })),
   }));
 
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: ScatterPoint }[] }) => {
+    if (!active || !payload?.length) return null;
+    const d = payload[0].payload;
+    return (
+      <div className="bg-white border border-[#E2DBFF] shadow p-3 text-sm">
+        <p className="font-semibold text-[#0f0f0f] mb-1">{d.date}</p>
+        <p className="text-[#A38DFB] text-xs mb-2 truncate max-w-[180px]">{d.campaign}</p>
+        <p><span className="text-slate-500">ThruPlay:</span> <span className="font-semibold">{d.x}%</span></p>
+        <p><span className="text-slate-500">Clicks:</span> <span className="font-semibold">{d.y.toLocaleString('nl-NL')}</span></p>
+      </div>
+    );
+  };
+
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+    <div className="bg-white border border-[#E2DBFF] p-6">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-6">
         <div>
-          <h2 className="font-semibold text-slate-800 text-lg">Uitkijkers vs Clicks</h2>
-          <p className="text-sm text-slate-400 mt-0.5">
-            Elke punt = één dag. Zit er verband tussen ThruPlay % en klikken?
+          <h2 className="font-semibold text-[#0f0f0f] text-base">Uitkijkers vs Clicks</h2>
+          <p className="text-xs text-[#A38DFB] uppercase tracking-widest mt-0.5">
+            Elke punt = één dag
           </p>
         </div>
         <div className="text-right shrink-0">
-          <p className="text-xs text-slate-400">Pearson r</p>
-          <p className="text-2xl font-bold text-slate-800">{r.toFixed(2)}</p>
-          <p className={`text-xs font-medium ${corrColor}`}>{corrText}</p>
+          <p className="text-xs text-[#A38DFB] uppercase tracking-widest">Pearson r</p>
+          <p className="text-2xl font-bold text-[#6331F4]">{r.toFixed(2)}</p>
+          <p className={`text-xs font-semibold ${corrColor}`}>{corrText}</p>
         </div>
       </div>
 
       <ResponsiveContainer width="100%" height={300}>
         <ScatterChart margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E2DBFF" />
           <XAxis
             dataKey="x"
             name="ThruPlay %"
             type="number"
-            label={{ value: 'ThruPlay %', position: 'insideBottom', offset: -2, fontSize: 11, fill: '#94a3b8' }}
-            tick={{ fontSize: 11, fill: '#94a3b8' }}
+            label={{ value: 'ThruPlay %', position: 'insideBottom', offset: -2, fontSize: 11, fill: '#A38DFB' }}
+            tick={{ fontSize: 11, fill: '#A38DFB' }}
             tickLine={false}
             axisLine={false}
           />
@@ -140,29 +106,22 @@ export default function CorrelationChart({ campaigns }: CorrelationChartProps) {
             dataKey="y"
             name="Clicks"
             type="number"
-            tick={{ fontSize: 11, fill: '#94a3b8' }}
+            tick={{ fontSize: 11, fill: '#A38DFB' }}
             tickLine={false}
             axisLine={false}
             width={40}
           />
           <Tooltip content={<CustomTooltip />} />
           {seriesPerCampaign.map((series) => (
-            <Scatter
-              key={series.name}
-              name={series.name}
-              data={series.points}
-              fill={series.color}
-              fillOpacity={0.7}
-            />
+            <Scatter key={series.name} name={series.name} data={series.points} fill={series.color} fillOpacity={0.75} />
           ))}
         </ScatterChart>
       </ResponsiveContainer>
 
-      {/* Legend */}
       <div className="flex flex-wrap gap-3 mt-4">
         {seriesPerCampaign.map((series) => (
           <div key={series.name} className="flex items-center gap-1.5 text-xs text-slate-500">
-            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: series.color }} />
+            <span className="w-2.5 h-2.5 shrink-0" style={{ backgroundColor: series.color }} />
             <span className="truncate max-w-[200px]">{series.name}</span>
           </div>
         ))}
