@@ -83,7 +83,7 @@ export default function DashboardPage() {
   }, [fetchData]);
 
   return (
-    <main className="min-h-screen bg-[#F5F3FF]">
+    <main className="min-h-screen bg-[#FCFCFF]">
       {/* Top bar */}
       <header className="bg-white border-b-2 border-[#6331F4]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -94,7 +94,7 @@ export default function DashboardPage() {
             className="h-7 w-auto"
           />
           {/* Client name */}
-          <span className="text-sm font-semibold tracking-widest uppercase text-[#6331F4]">
+          <span className="text-sm font-semibold tracking-widest uppercase text-[#22222D]">
             Het Allermooiste Feestje
           </span>
         </div>
@@ -103,7 +103,7 @@ export default function DashboardPage() {
       {/* Sub-bar: date picker */}
       <div className="bg-white border-b border-[#E2DBFF]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-3 flex items-center gap-4">
-          <span className="text-xs font-semibold uppercase tracking-widest text-[#A38DFB]">Periode</span>
+          <span className="text-xs font-semibold uppercase tracking-widest text-[#22222D]">Periode</span>
           <DateRangePicker value={datePreset} onChange={setDatePreset} />
         </div>
       </div>
@@ -125,10 +125,10 @@ export default function DashboardPage() {
 
         {/* KPI cards */}
         <section>
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-[#A38DFB] mb-4">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-[#22222D] mb-4">
             Totaaloverzicht
           </h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#E2DBFF]">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {loading ? (
               Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
             ) : data ? (
@@ -137,9 +137,9 @@ export default function DashboardPage() {
                 <KpiCard title="Clicks" value={formatNumber(data.totals.totalClicks)} subtitle="Totaal klikken" />
                 <KpiCard title="Bereik" value={formatNumber(data.totals.avgReachPerDay)} subtitle="Gemiddeld per dag" />
                 <KpiCard title="ThruPlay rate" value={formatPercent(data.totals.avgThruplayRate)} subtitle="Gem. uitkijkpercentage" />
-                <KpiCard title="Spend" value={formatEuro(data.totals.totalSpend)} subtitle="Totaal uitgegeven" accent />
-                <KpiCard title="CPM" value={formatEuro(data.totals.avgCpm)} subtitle="Kosten per 1.000 weergaven" accent />
-                <KpiCard title="CPC" value={formatEuro(data.totals.avgCpc)} subtitle="Kosten per klik" accent />
+                <KpiCard title="Spend" value={formatEuro(data.totals.totalSpend)} subtitle="Totaal uitgegeven" />
+                <KpiCard title="CPM" value={formatEuro(data.totals.avgCpm)} subtitle="Kosten per 1.000 weergaven" />
+                <KpiCard title="CPC" value={formatEuro(data.totals.avgCpc)} subtitle="Kosten per klik" />
                 <KpiCard
                   title="ROAS"
                   value={data.totals.avgRoas > 0 ? `${data.totals.avgRoas.toFixed(2)}x` : '—'}
@@ -153,7 +153,7 @@ export default function DashboardPage() {
 
         {/* Campaign charts */}
         <section>
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-[#A38DFB] mb-4">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-[#22222D] mb-4">
             Campagnes per dag
           </h2>
           {loading ? (
@@ -183,7 +183,7 @@ export default function DashboardPage() {
           const allData: DailyDataPoint[] = data.campaigns.flatMap((c) => c.dailyData);
           return (
             <section>
-              <h2 className="text-xs font-semibold uppercase tracking-widest text-[#A38DFB] mb-4">
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-[#22222D] mb-4">
                 Analyse
               </h2>
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -197,7 +197,7 @@ export default function DashboardPage() {
         {/* Geografie */}
         {!loading && geoData && geoData.length > 0 && (
           <section>
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-[#A38DFB] mb-4">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-[#22222D] mb-4">
               Geografie
             </h2>
             <GeoChart data={geoData} />

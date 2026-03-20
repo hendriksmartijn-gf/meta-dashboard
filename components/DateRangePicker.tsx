@@ -16,17 +16,15 @@ interface DateRangePickerProps {
 
 export default function DateRangePicker({ value, onChange }: DateRangePickerProps) {
   return (
-    <div className="flex gap-0 border border-[#E2DBFF]">
-      {PRESETS.map((preset, i) => (
+    <div className="flex gap-2 flex-wrap">
+      {PRESETS.map((preset) => (
         <button
           key={preset.value}
           onClick={() => onChange(preset.value)}
-          className={`px-4 py-2 text-xs font-semibold uppercase tracking-widest transition-colors ${
-            i < PRESETS.length - 1 ? 'border-r border-[#E2DBFF]' : ''
-          } ${
+          className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-colors ${
             value === preset.value
               ? 'bg-[#6331F4] text-white'
-              : 'bg-white text-[#6331F4] hover:bg-[#E2DBFF]'
+              : 'bg-white text-[#6331F4] border border-[#E2DBFF] hover:bg-[#E2DBFF]'
           }`}
         >
           {preset.label}

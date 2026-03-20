@@ -15,12 +15,8 @@
   --color-brand-light: #E2DBFF;
 }
 
-* {
-  border-radius: 0 !important;
-}
-
 body {
   font-family: var(--font-sans);
-  background: var(--color-bg);
-  color: #0f0f0f;
+  background: #FCFCFF;
+  color: #22222D;
 }
