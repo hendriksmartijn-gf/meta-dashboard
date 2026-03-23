@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import KpiCard from '@/components/KpiCard';
 import CampaignChart from '@/components/CampaignChart';
 import DayOfWeekChart from '@/components/DayOfWeekChart';
@@ -42,15 +42,27 @@ function SkeletonChart() {
 }
 
 export default function DashboardPage() {
+  const REFRESH_INTERVAL = 5 * 60; // seconds
   const [datePreset, setDatePreset] = useState<DatePreset>('last_30d');
   const [data, setData] = useState<DashboardData | null>(null);
   const [geoData, setGeoData] = useState<GeoDataPoint[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const resetCountdown = useCallback(() => {
+    setCountdown(REFRESH_INTERVAL);
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    countdownRef.current = setInterval(() => {
+      setCountdown((s) => (s > 0 ? s - 1 : 0));
+    }, 1000);
+  }, [REFRESH_INTERVAL]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
+    resetCountdown();
     try {
       const [insightsRes, geoRes] = await Promise.all([
         fetch(`/api/meta/insights?date_preset=${datePreset}`),
@@ -78,9 +90,12 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [fetchData]);
+    const interval = setInterval(fetchData, REFRESH_INTERVAL * 1000);
+    return () => {
+      clearInterval(interval);
+      if (countdownRef.current) clearInterval(countdownRef.current);
+    };
+  }, [fetchData, REFRESH_INTERVAL]);
 
   return (
     <main className="min-h-screen bg-[#FCFCFF]">
@@ -93,6 +108,10 @@ export default function DashboardPage() {
             alt="Goldfizh"
             className="h-7 w-auto"
           />
+          {/* Countdown */}
+          <span className="font-mono text-xs tabular-nums text-[#A38DFB] tracking-widest" title="Volgende refresh">
+            {String(Math.floor(countdown / 60)).padStart(2, '0')}:{String(countdown % 60).padStart(2, '0')}
+          </span>
           {/* Client name */}
           <span className="text-sm font-semibold tracking-widest uppercase text-[#22222D]">
             Het Allermooiste Feestje
