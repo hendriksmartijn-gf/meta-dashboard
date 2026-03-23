@@ -7,8 +7,39 @@ import DayOfWeekChart from '@/components/DayOfWeekChart';
 import CorrelationChart from '@/components/CorrelationChart';
 import GeoChart from '@/components/GeoChart';
 import DateRangePicker, { DatePreset } from '@/components/DateRangePicker';
-import type { DashboardData, DailyDataPoint } from '@/types/meta';
+import type { DashboardData, DailyDataPoint, CampaignData } from '@/types/meta';
 import type { GeoDataPoint } from '@/app/api/meta/geo/route';
+
+function computeTotals(campaigns: CampaignData[]) {
+  let totalImpressions = 0, totalClicks = 0, totalReach = 0, reachDays = 0;
+  let totalThruplayRate = 0, thruplayDays = 0, totalSpend = 0;
+  let totalCpm = 0, cpmDays = 0, totalCpc = 0, cpcDays = 0;
+  let totalRoas = 0, roasDays = 0;
+
+  for (const c of campaigns) {
+    for (const d of c.dailyData) {
+      totalImpressions += d.impressions;
+      totalClicks += d.clicks;
+      totalReach += d.reach;
+      totalSpend += d.spend;
+      reachDays++;
+      if (d.impressions > 0) { totalThruplayRate += d.thruplayRate; thruplayDays++; totalCpm += d.cpm; cpmDays++; }
+      if (d.clicks > 0) { totalCpc += d.cpc; cpcDays++; }
+      if (d.roas > 0) { totalRoas += d.roas; roasDays++; }
+    }
+  }
+
+  return {
+    totalImpressions,
+    totalClicks,
+    avgReachPerDay: reachDays > 0 ? Math.round(totalReach / reachDays) : 0,
+    avgThruplayRate: thruplayDays > 0 ? totalThruplayRate / thruplayDays : 0,
+    totalSpend,
+    avgCpm: cpmDays > 0 ? totalCpm / cpmDays : 0,
+    avgCpc: cpcDays > 0 ? totalCpc / cpcDays : 0,
+    avgRoas: roasDays > 0 ? totalRoas / roasDays : 0,
+  };
+}
 
 function formatNumber(n: number): string {
   return n.toLocaleString('nl-NL');
@@ -50,6 +81,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const resetCountdown = useCallback(() => {
     setCountdown(REFRESH_INTERVAL);
@@ -76,6 +108,7 @@ export default function DashboardPage() {
 
       const json: DashboardData = await insightsRes.json();
       setData(json);
+      setSelectedIds(new Set(json.campaigns.map((c) => c.campaignId)));
 
       if (geoRes.ok) {
         const geo: GeoDataPoint[] = await geoRes.json();
@@ -96,6 +129,17 @@ export default function DashboardPage() {
       if (countdownRef.current) clearInterval(countdownRef.current);
     };
   }, [fetchData, REFRESH_INTERVAL]);
+
+  const filteredCampaigns = data ? data.campaigns.filter((c) => selectedIds.has(c.campaignId)) : [];
+  const filteredTotals = computeTotals(filteredCampaigns);
+
+  function toggleCampaign(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) { next.delete(id); } else { next.add(id); }
+      return next;
+    });
+  }
 
   return (
     <main className="min-h-screen bg-[#FCFCFF]">
@@ -127,6 +171,28 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Campaign filter */}
+      {data && data.campaigns.length > 1 && (
+        <div className="bg-white border-b border-[#E2DBFF]">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 py-3 flex flex-wrap items-center gap-4">
+            <span className="text-xs font-semibold uppercase tracking-widest text-[#22222D]">Campagnes</span>
+            {data.campaigns.map((c) => (
+              <label key={c.campaignId} className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(c.campaignId)}
+                  onChange={() => toggleCampaign(c.campaignId)}
+                  className="w-4 h-4 rounded-full accent-[#6331F4] cursor-pointer"
+                />
+                <span className="text-xs text-[#22222D] group-hover:text-[#6331F4] transition-colors">
+                  {c.campaignName}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 space-y-10">
         {/* Error */}
         {error && (
@@ -152,17 +218,17 @@ export default function DashboardPage() {
               Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
             ) : data ? (
               <>
-                <KpiCard title="Weergaven" value={formatNumber(data.totals.totalImpressions)} subtitle="Totaal impressies" />
-                <KpiCard title="Clicks" value={formatNumber(data.totals.totalClicks)} subtitle="Totaal klikken" />
-                <KpiCard title="Bereik" value={formatNumber(data.totals.avgReachPerDay)} subtitle="Gemiddeld per dag" />
-                <KpiCard title="ThruPlay rate" value={formatPercent(data.totals.avgThruplayRate)} subtitle="Gem. uitkijkpercentage" />
-                <KpiCard title="Spend" value={formatEuro(data.totals.totalSpend)} subtitle="Totaal uitgegeven" />
-                <KpiCard title="CPM" value={formatEuro(data.totals.avgCpm)} subtitle="Kosten per 1.000 weergaven" />
-                <KpiCard title="CPC" value={formatEuro(data.totals.avgCpc)} subtitle="Kosten per klik" />
+                <KpiCard title="Weergaven" value={formatNumber(filteredTotals.totalImpressions)} subtitle="Totaal impressies" />
+                <KpiCard title="Clicks" value={formatNumber(filteredTotals.totalClicks)} subtitle="Totaal klikken" />
+                <KpiCard title="Bereik" value={formatNumber(filteredTotals.avgReachPerDay)} subtitle="Gemiddeld per dag" />
+                <KpiCard title="ThruPlay rate" value={formatPercent(filteredTotals.avgThruplayRate)} subtitle="Gem. uitkijkpercentage" />
+                <KpiCard title="Spend" value={formatEuro(filteredTotals.totalSpend)} subtitle="Totaal uitgegeven" />
+                <KpiCard title="CPM" value={formatEuro(filteredTotals.avgCpm)} subtitle="Kosten per 1.000 weergaven" />
+                <KpiCard title="CPC" value={formatEuro(filteredTotals.avgCpc)} subtitle="Kosten per klik" />
                 <KpiCard
                   title="ROAS"
-                  value={data.totals.avgRoas > 0 ? `${data.totals.avgRoas.toFixed(2)}x` : '—'}
-                  subtitle={data.totals.avgRoas > 0 ? 'Gemiddeld rendement' : 'Geen conversiedata'}
+                  value={filteredTotals.avgRoas > 0 ? `${filteredTotals.avgRoas.toFixed(2)}x` : '—'}
+                  subtitle={filteredTotals.avgRoas > 0 ? 'Gemiddeld rendement' : 'Geen conversiedata'}
                   accent
                 />
               </>
@@ -180,9 +246,9 @@ export default function DashboardPage() {
               <SkeletonChart />
               <SkeletonChart />
             </div>
-          ) : data && data.campaigns.length > 0 ? (
+          ) : filteredCampaigns.length > 0 ? (
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-              {data.campaigns.map((campaign) => (
+              {filteredCampaigns.map((campaign) => (
                 <CampaignChart
                   key={campaign.campaignId}
                   campaignName={campaign.campaignName}
@@ -198,8 +264,8 @@ export default function DashboardPage() {
         </section>
 
         {/* Analyse */}
-        {!loading && data && data.campaigns.length > 0 && (() => {
-          const allData: DailyDataPoint[] = data.campaigns.flatMap((c) => c.dailyData);
+        {!loading && filteredCampaigns.length > 0 && (() => {
+          const allData: DailyDataPoint[] = filteredCampaigns.flatMap((c) => c.dailyData);
           return (
             <section>
               <h2 className="text-xs font-semibold uppercase tracking-widest text-[#22222D] mb-4">
@@ -207,7 +273,7 @@ export default function DashboardPage() {
               </h2>
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 <DayOfWeekChart allData={allData} />
-                <CorrelationChart campaigns={data.campaigns} />
+                <CorrelationChart campaigns={filteredCampaigns} />
               </div>
             </section>
           );
