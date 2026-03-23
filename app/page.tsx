@@ -6,7 +6,7 @@ import CampaignChart from '@/components/CampaignChart';
 import DayOfWeekChart from '@/components/DayOfWeekChart';
 import CorrelationChart from '@/components/CorrelationChart';
 import GeoChart from '@/components/GeoChart';
-import DateRangePicker, { DatePreset } from '@/components/DateRangePicker';
+import DateRangePicker, { DateSelection } from '@/components/DateRangePicker';
 import type { DashboardData, DailyDataPoint, CampaignData } from '@/types/meta';
 import type { GeoDataPoint } from '@/app/api/meta/geo/route';
 
@@ -74,7 +74,7 @@ function SkeletonChart() {
 
 export default function DashboardPage() {
   const REFRESH_INTERVAL = 5 * 60; // seconds
-  const [datePreset, setDatePreset] = useState<DatePreset>('last_30d');
+  const [dateSelection, setDateSelection] = useState<DateSelection>({ type: 'preset', preset: 'last_30d' });
   const [data, setData] = useState<DashboardData | null>(null);
   const [geoData, setGeoData] = useState<GeoDataPoint[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -91,14 +91,19 @@ export default function DashboardPage() {
     }, 1000);
   }, [REFRESH_INTERVAL]);
 
+  const dateParams =
+    dateSelection.type === 'preset'
+      ? `date_preset=${dateSelection.preset}`
+      : `since=${dateSelection.since}&until=${dateSelection.until}`;
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     resetCountdown();
     try {
       const [insightsRes, geoRes] = await Promise.all([
-        fetch(`/api/meta/insights?date_preset=${datePreset}`),
-        fetch(`/api/meta/geo?date_preset=${datePreset}`),
+        fetch(`/api/meta/insights?${dateParams}`),
+        fetch(`/api/meta/geo?${dateParams}`),
       ]);
 
       if (!insightsRes.ok) {
@@ -119,7 +124,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [datePreset]);
+  }, [dateParams]);
 
   useEffect(() => {
     fetchData();
@@ -129,6 +134,12 @@ export default function DashboardPage() {
       if (countdownRef.current) clearInterval(countdownRef.current);
     };
   }, [fetchData, REFRESH_INTERVAL]);
+
+  // Refetch when date selection changes
+  useEffect(() => {
+    fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateParams]);
 
   const filteredCampaigns = data ? data.campaigns.filter((c) => selectedIds.has(c.campaignId)) : [];
   const filteredTotals = computeTotals(filteredCampaigns);
@@ -167,31 +178,10 @@ export default function DashboardPage() {
       <div className="bg-white border-b border-[#E2DBFF]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-3 flex items-center gap-4">
           <span className="text-xs font-semibold uppercase tracking-widest text-[#22222D]">Periode</span>
-          <DateRangePicker value={datePreset} onChange={setDatePreset} />
+          <DateRangePicker value={dateSelection} onChange={setDateSelection} />
         </div>
       </div>
 
-      {/* Campaign filter */}
-      {data && data.campaigns.length > 1 && (
-        <div className="bg-white border-b border-[#E2DBFF]">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8 py-3 flex flex-wrap items-center gap-4">
-            <span className="text-xs font-semibold uppercase tracking-widest text-[#22222D]">Campagnes</span>
-            {data.campaigns.map((c) => (
-              <label key={c.campaignId} className="flex items-center gap-2 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={selectedIds.has(c.campaignId)}
-                  onChange={() => toggleCampaign(c.campaignId)}
-                  className="w-4 h-4 rounded-full accent-[#6331F4] cursor-pointer"
-                />
-                <span className="text-xs text-[#22222D] group-hover:text-[#6331F4] transition-colors">
-                  {c.campaignName}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 space-y-10">
         {/* Error */}
@@ -246,13 +236,15 @@ export default function DashboardPage() {
               <SkeletonChart />
               <SkeletonChart />
             </div>
-          ) : filteredCampaigns.length > 0 ? (
+          ) : data && data.campaigns.length > 0 ? (
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-              {filteredCampaigns.map((campaign) => (
+              {data.campaigns.map((campaign) => (
                 <CampaignChart
                   key={campaign.campaignId}
                   campaignName={campaign.campaignName}
                   data={campaign.dailyData}
+                  isSelected={selectedIds.has(campaign.campaignId)}
+                  onToggle={() => toggleCampaign(campaign.campaignId)}
                 />
               ))}
             </div>

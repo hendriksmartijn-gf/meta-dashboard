@@ -36,6 +36,8 @@ const METRICS: MetricConfig[] = [
 interface CampaignChartProps {
   campaignName: string;
   data: DailyDataPoint[];
+  isSelected: boolean;
+  onToggle: () => void;
 }
 
 function formatDate(dateStr: string): string {
@@ -43,7 +45,7 @@ function formatDate(dateStr: string): string {
   return `${day}/${month}`;
 }
 
-export default function CampaignChart({ campaignName, data }: CampaignChartProps) {
+export default function CampaignChart({ campaignName, data, isSelected, onToggle }: CampaignChartProps) {
   const [activeMetrics, setActiveMetrics] = useState<Set<string>>(
     new Set(['impressions', 'clicks', 'spend'])
   );
@@ -92,8 +94,21 @@ export default function CampaignChart({ campaignName, data }: CampaignChartProps
   };
 
   return (
-    <div className="bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] p-6">
-      <h2 className="font-semibold text-[#22222D] text-base leading-tight mb-3 w-full">{campaignName}</h2>
+    <div className={`bg-white rounded-[8px] shadow-[0_4px_12px_rgba(0,0,0,0.06)] p-6 transition-opacity ${!isSelected ? 'opacity-40' : ''}`}>
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <h2 className="font-semibold text-[#22222D] text-base leading-tight">{campaignName}</h2>
+        <label className="flex items-center gap-1.5 cursor-pointer shrink-0 mt-0.5 group">
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={onToggle}
+            className="w-4 h-4 accent-[#6331F4] cursor-pointer"
+          />
+          <span className="text-[11px] text-[#A38DFB] group-hover:text-[#6331F4] transition-colors select-none">
+            {isSelected ? 'Aan' : 'Uit'}
+          </span>
+        </label>
+      </div>
       <div className="flex flex-wrap gap-1.5 mb-6">
         {METRICS.map((metric) => (
           <button

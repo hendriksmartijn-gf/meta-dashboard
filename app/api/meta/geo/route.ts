@@ -51,7 +51,9 @@ export async function GET(request: NextRequest) {
   }
 
   const { searchParams } = request.nextUrl;
-  const datePreset = searchParams.get('date_preset') ?? 'last_30d';
+  const datePreset = searchParams.get('date_preset');
+  const sinceParam = searchParams.get('since');
+  const untilParam = searchParams.get('until');
 
   const params = new URLSearchParams({
     fields: 'country,impressions,clicks,reach',
@@ -60,16 +62,18 @@ export async function GET(request: NextRequest) {
     access_token: accessToken,
   });
 
-  if (datePreset === 'last_3d') {
-    const until = new Date();
-    const since = new Date();
-    since.setDate(until.getDate() - 3);
+  if (sinceParam && untilParam) {
+    params.set('time_range', JSON.stringify({ since: sinceParam, until: untilParam }));
+  } else if (datePreset === 'last_3d') {
+    const u = new Date();
+    const s = new Date();
+    s.setDate(u.getDate() - 3);
     params.set('time_range', JSON.stringify({
-      since: since.toISOString().slice(0, 10),
-      until: until.toISOString().slice(0, 10),
+      since: s.toISOString().slice(0, 10),
+      until: u.toISOString().slice(0, 10),
     }));
   } else {
-    params.set('date_preset', datePreset);
+    params.set('date_preset', datePreset ?? 'last_30d');
   }
 
   const url = `https://graph.facebook.com/v19.0/act_${adAccountId}/insights?${params.toString()}`;
