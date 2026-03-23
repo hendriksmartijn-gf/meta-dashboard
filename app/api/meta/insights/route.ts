@@ -60,9 +60,7 @@ async function fetchAllPages(url: string): Promise<MetaInsight[]> {
   let nextUrl: string | undefined = url;
 
   while (nextUrl) {
-    const res = await fetch(nextUrl, {
-      next: { revalidate: 300 }, // cache 5 minutes
-    });
+    const res = await fetch(nextUrl, { cache: 'no-store' });
 
     if (!res.ok) {
       const error = await res.json().catch(() => ({ error: { message: res.statusText } }));
