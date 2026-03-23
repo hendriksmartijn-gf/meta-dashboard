@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { MetaApiResponse, MetaInsight, CampaignData, DailyDataPoint, DashboardData } from '@/types/meta';
 
-export const runtime = 'edge';
-
 function extractActionValue(
   actions?: { action_type: string; value: string }[],
   type = 'video_view'

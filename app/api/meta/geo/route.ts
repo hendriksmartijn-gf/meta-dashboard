@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export const runtime = 'edge';
-
 export interface GeoDataPoint {
   country: string;
   countryCode: string;
